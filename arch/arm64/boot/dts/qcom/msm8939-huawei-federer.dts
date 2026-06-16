@@ -168,7 +168,7 @@
 
 		vddio-supply = <&pm8916_l6>;
 
-		vled-gpios = <&tlmm 07 GPIO_ACTIVE_HIGH>;
+		vled-gpios = <&tlmm 97 GPIO_ACTIVE_HIGH>;
 		blk-gpios = <&tlmm 109 GPIO_ACTIVE_HIGH>;
 		panel-gpios = <&tlmm 32 GPIO_ACTIVE_HIGH>;
 
