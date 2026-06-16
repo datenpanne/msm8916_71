@@ -1,0 +1,207 @@
+/dts-v1/;
+
+#include "msm8939-huawei-common.dtsi"
+
+/ {
+	model = "Huawei MediaPad T2 Pro 7";
+	compatible = "huawei,pele", "qcom,msm8939";
+	chassis-type = "tablet";
+
+	battery: battery {
+		compatible = "simple-battery";
+		device-chemistry = "lithium-ion-polymer";
+		voltage-min-design-microvolt = <3300000>;
+		voltage-max-design-microvolt = <4350000>;
+		energy-full-design-microwatt-hours = <16074000>;
+		charge-full-design-microamp-hours = <4230000>;
+
+		factory-internal-resistance-micro-ohms = <120000>;
+
+		precharge-current-microamp = <250000>;
+		charge-term-current-microamp = <150000>;
+
+		ocv-capacity-celsius = <25>;
+		ocv-capacity-table-0 = <4330000 100>, <4265000 95>,
+			<4208000 90>, <4153000 85>, <4100000 80>, <4049000 75>,
+			<4001000 70>, <3962000 65>, <3919000 60>, <3872000 55>,
+			<3839000 50>, <3817000 45>, <3798000 40>, <3783000 35>,
+			<3767000 30>, <3747000 25>, <3729000 20>, <3709000 16>,
+			<3688000 13>, <3681000 11>, <3680000 10>, <3679000 9>,
+			<3677000 8>, <3674000 7>, <3666000 6>, <3641000 5>,
+			<3597000 4>, <3537000 3>, <3457000 2>, <3336000 1>,
+			<3000000 0>;
+	};
+
+	reg_tp_vci: regulator-tp-vci {
+		compatible = "regulator-fixed";
+		regulator-name = "tp_vci";
+		vin-supply = <&pm8916_l17>;
+		//regulator-min-microvolt = <1800000>;
+		//regulator-max-microvolt = <1800000>;
+		gpio = <&tlmm 112 GPIO_ACTIVE_HIGH>;
+		regulator-boot-on;
+		enable-active-high;
+		regulator-always-on;
+	};
+
+	reg_tp_vddio: regulator-tp-vddio {
+		compatible = "regulator-fixed";
+		regulator-name = "tp_vddio";
+		gpio = <&tlmm 10 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		regulator-always-on;
+	};
+};
+
+&blsp_i2c2 {
+	status = "okay";
+
+	accelerometer@18 {
+		compatible = "bosch,bma255";
+		reg = <0x18>;
+
+		interrupt-parent = <&tlmm>;
+		interrupts = <115 IRQ_TYPE_EDGE_RISING>;
+
+		vdd-supply = <&pm8916_l17>;
+		vddio-supply = <&pm8916_l6>;
+
+		mount-matrix = "0", "-1", "0",
+			       "0", "1", "0",
+			       "0", "0", "1";
+
+		pinctrl-0 = <&accel_int_default>;
+		pinctrl-names = "default";
+	};
+
+	magnetometer@c {
+		compatible = "asahi-kasei,ak09911";
+		reg = <0x0c>;
+		vdd-supply = <&pm8916_l17>;
+		vid-supply = <&pm8916_l6>;
+		reset-gpios = <&tlmm 36 GPIO_ACTIVE_LOW>;
+		pinctrl-0 = <&mag_reset_default>;
+		pinctrl-names = "default";
+	};
+
+	/*proximity@1e { // reference
+		compatible = "ap3426";
+		reg = <0x1e>;
+	};*/
+};
+
+&blsp_i2c5 {
+	status = "okay";
+	clock-frequency = <400000>;
+
+	touchscreen@24 {
+		compatible = "cypress,tt21000";
+		reg = <0x24>;
+
+		reset-gpios = <&tlmm 12 GPIO_ACTIVE_LOW>;
+		interrupts-extended  = <&tlmm 13 IRQ_TYPE_EDGE_FALLING>;
+
+		vdd-supply = <&reg_tp_vci>;
+		vddio-supply = <&reg_tp_vddio>;
+	};
+};
+
+&mdss_dsi0 {
+	panel@0 {
+		compatible = "huawei,pele-panel";
+
+		vddio-supply = <&pm8916_l6>;
+		vddio-incell-supply = <&pm8916_l16>;
+
+		reset-gpios = <&tlmm 25 GPIO_ACTIVE_HIGH>;
+
+		vcc-gpios = <&tlmm 2 GPIO_ACTIVE_HIGH>;
+		vsp-gpios = <&tlmm 97 GPIO_ACTIVE_HIGH>;
+		vsn-gpios = <&tlmm 32 GPIO_ACTIVE_HIGH>;
+		vled-gpios = <&tlmm 109 GPIO_ACTIVE_HIGH>;
+		bl-gpios = <&tlmm 3 GPIO_ACTIVE_HIGH>;
+
+		pinctrl-0 = <&panel_default &mdss_te_default>;
+		pinctrl-1 = <&panel_sleep &mdss_te_default>;
+	};
+};
+
+&mpss_mem {
+	reg = <0x0 0x86800000 0x0 0x5500000>;
+};
+
+&pm8916_codec {
+	qcom,micbias2-ext-cap;
+};
+
+&sdhc_2 {
+	cd-gpios = <&tlmm 38 GPIO_ACTIVE_HIGH>;
+};
+
+&sound {
+	model = "msm8916";
+	audio-routing =
+		"AMIC1", "MIC BIAS Internal1",
+		"AMIC2", "MIC BIAS Internal2",
+		"AMIC3", "MIC BIAS Internal3";
+
+	pinctrl-0 = <&cdc_pdm_default>;
+	pinctrl-1 = <&cdc_pdm_sleep>;
+	pinctrl-names = "default", "sleep";
+
+	status = "okay";
+};
+
+&usb_id {
+    id-gpios = <&tlmm 118 GPIO_ACTIVE_HIGH>;
+};
+
+&wcnss_iris {
+	compatible = "qcom,wcn3620";
+};
+
+&tlmm {
+	gpio_leds_default: gpio-leds-default-state {
+		pins = "gpio8", "gpio9", "gpio1";
+	};
+
+	mag_reset_default: mag-reset-default-state {
+		pins = "gpio36";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-disable;
+	};
+
+	mdss_te_default: mdss-te-default-state {
+		pins = "gpio24";
+		function = "mdp_vsync";
+		drive-strength = <2>;
+		bias-pull-down;
+	};
+
+	panel_default: panel-default-state {
+		pins = "gpio2", "gpio3", "gpio25", "gpio32", "gpio97", "gpio109";
+	};
+
+	panel_sleep: panel-sleep-state {
+		pins = "gpio2", "gpio3", "gpio25", "gpio32", "gpio97", "gpio109";
+	};
+
+	prox_irq_default: prox-irq-default-state {
+		pins = "gpio113";
+		function = "gpio";
+
+		drive-strength = <2>;
+		bias-disable;
+	};
+
+	usb_id_default: usb-id-default-state {
+		pins = "gpio118";
+	};
+};
+
+&{/gpio-leds} {
+	led-2 {
+		gpios = <&tlmm 1 GPIO_ACTIVE_HIGH>;
+	};
+};
