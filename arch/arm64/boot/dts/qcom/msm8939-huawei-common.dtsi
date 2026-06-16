@@ -411,7 +411,7 @@
 		drive-strength = <2>;
 		bias-disable;
 	};
-	
+
 	bq24296_ce_hog: bq24296-ce-hog-state {
 		gpio-hog;
 		gpios = <108 GPIO_ACTIVE_HIGH>;

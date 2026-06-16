@@ -125,6 +125,10 @@ static int pele_jdi_r69429_prepare(struct drm_panel *panel)
 	msleep(10);
 	gpiod_set_value_cansleep(ctx->vsn_gpio, 1); /* -5.4V */
 	msleep(20);
+	gpiod_set_value_cansleep(ctx->vled_gpio, 1);
+	usleep_range(1000,5000);
+	gpiod_set_value_cansleep(ctx->bl_gpio, 1);
+	usleep_range(1000,5000);
 
 	pele_jdi_r69429_reset(ctx);
 
@@ -140,16 +144,14 @@ static int pele_jdi_r69429_enable(struct drm_panel *panel)
 	if (ret < 0)
 		return ret;
 
-	/* Backlight Enable Pins erst nach Initialisierung zuschalten */
-	gpiod_set_value_cansleep(ctx->vled_gpio, 1);
-	gpiod_set_value_cansleep(ctx->bl_gpio, 1);
-
 	return 0;
 }
 
 static int pele_jdi_r69429_disable(struct drm_panel *panel)
 {
 	struct pele_jdi_r69429 *ctx = to_pele_jdi_r69429(panel);
+
+	msleep(34); /* Entspricht ca. 2 vblank-Phasen bei 60Hz */
 
 	gpiod_set_value_cansleep(ctx->bl_gpio, 0);
 	gpiod_set_value_cansleep(ctx->vled_gpio, 0);

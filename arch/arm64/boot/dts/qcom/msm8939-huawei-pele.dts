@@ -54,14 +54,11 @@
 };
 
 &blsp_i2c2 {
-	status = "okay";
-
 	accelerometer@18 {
 		compatible = "bosch,bma255";
 		reg = <0x18>;
 
-		interrupt-parent = <&tlmm>;
-		interrupts = <115 IRQ_TYPE_EDGE_RISING>;
+		interrupts-extended = <115 IRQ_TYPE_EDGE_RISING>;
 
 		vdd-supply = <&pm8916_l17>;
 		vddio-supply = <&pm8916_l6>;
@@ -113,13 +110,13 @@
 		vddio-supply = <&pm8916_l6>;
 		vddio-incell-supply = <&pm8916_l16>;
 
-		reset-gpios = <&tlmm 25 GPIO_ACTIVE_HIGH>;
-
 		vcc-gpios = <&tlmm 2 GPIO_ACTIVE_HIGH>;
 		vsp-gpios = <&tlmm 97 GPIO_ACTIVE_HIGH>;
 		vsn-gpios = <&tlmm 32 GPIO_ACTIVE_HIGH>;
 		vled-gpios = <&tlmm 109 GPIO_ACTIVE_HIGH>;
 		bl-gpios = <&tlmm 3 GPIO_ACTIVE_HIGH>;
+
+		reset-gpios = <&tlmm 25 GPIO_ACTIVE_HIGH>;
 
 		pinctrl-0 = <&panel_default &mdss_te_default>;
 		pinctrl-1 = <&panel_sleep &mdss_te_default>;
@@ -177,6 +174,7 @@
 		function = "mdp_vsync";
 		drive-strength = <2>;
 		bias-pull-down;
+		input-enable;
 	};
 
 	panel_default: panel-default-state {
