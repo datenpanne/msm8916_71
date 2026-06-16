@@ -175,9 +175,8 @@
 		interrupt-parent = <&tlmm>;
 		interrupts = <62 IRQ_TYPE_EDGE_FALLING>;
 
-		pinctrl-names = "default", "sleep";
+		pinctrl-names = "default";
 		pinctrl-0 = <&bq24296_charger_default>;
-		pinctrl-1 = <&bq24296_charger_sleep>;
 
 		monitored-battery = <&battery>;
 		ti,system-minimum-microvolt = <3300000>;
