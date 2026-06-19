@@ -28,8 +28,8 @@ struct huawei_nt51021 {
 
 static const struct regulator_bulk_data huawei_nt51021_supplies[] = {
 	{ .supply = "vddio" },
-	//{ .supply = "vsp" },
-	//{ .supply = "vsn" },
+	{ .supply = "vsp" },
+	{ .supply = "vsn" },
 };
 
 #define NT51021_REG_BKLT_PWM 0x9f
