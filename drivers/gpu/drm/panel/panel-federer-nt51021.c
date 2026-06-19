@@ -8,6 +8,7 @@
 #include <linux/gpio/consumer.h>
 #include <linux/mod_devicetable.h>
 #include <linux/module.h>
+#include <linux/of.h>
 #include <linux/regulator/consumer.h>
 
 #include <drm/drm_mipi_dsi.h>
@@ -339,12 +340,13 @@ static int huawei_nt51021_probe(struct mipi_dsi_device *dsi)
 			  MIPI_DSI_MODE_VIDEO_HSE | MIPI_DSI_MODE_NO_EOT_PACKET |
 			  MIPI_DSI_CLOCK_NON_CONTINUOUS;
 
+	drm_panel_init(&ctx->panel, dev, &huawei_nt51021_panel_funcs, DRM_MODE_CONNECTOR_DSI);
 	ctx->panel.prepare_prev_first = true;
+	ctx->bl_enabled = false;
 
 	ctx->panel.backlight = huawei_nt51021_create_backlight(dsi);
 	if (IS_ERR(ctx->panel.backlight))
-		return dev_err_probe(dev, PTR_ERR(ctx->panel.backlight),
-				     "Failed to create backlight\n");
+		return dev_err_probe(dev, PTR_ERR(ctx->panel.backlight), "Failed to create backlight\n");
 
 	drm_panel_add(&ctx->panel);
 
@@ -360,18 +362,13 @@ static int huawei_nt51021_probe(struct mipi_dsi_device *dsi)
 static void huawei_nt51021_remove(struct mipi_dsi_device *dsi)
 {
 	struct huawei_nt51021 *ctx = mipi_dsi_get_drvdata(dsi);
-	int ret;
-
-	ret = mipi_dsi_detach(dsi);
-	if (ret < 0)
-		dev_err(&dsi->dev, "Failed to detach from DSI host: %d\n", ret);
-
+	mipi_dsi_detach(dsi);
 	drm_panel_remove(&ctx->panel);
 }
 
 static const struct of_device_id huawei_nt51021_of_match[] = {
 	{ .compatible = "huawei,boe-nt51021" },
-	{ /* sentinel */ }
+	{ }
 };
 MODULE_DEVICE_TABLE(of, huawei_nt51021_of_match);
 
@@ -379,12 +376,12 @@ static struct mipi_dsi_driver huawei_nt51021_driver = {
 	.probe = huawei_nt51021_probe,
 	.remove = huawei_nt51021_remove,
 	.driver = {
-		.name = "panel-federer-nt51021",
-		.of_match_table = huawei_nt51021_of_match,
+	.name = "panel-federer-nt51021",
+	.of_match_table = huawei_nt51021_of_match,
 	},
 };
 module_mipi_dsi_driver(huawei_nt51021_driver);
 
 MODULE_AUTHOR("linux-mdss-dsi-panel-driver-generator <fix@me>");
 MODULE_DESCRIPTION("DRM driver for BOE_NT51021_10_1200P_VIDEO");
-MODULE_LICENSE("GPL");
+MODULE_LICENSE("GPL v2");
