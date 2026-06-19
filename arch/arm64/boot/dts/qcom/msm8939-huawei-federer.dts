@@ -184,9 +184,16 @@
 		pinctrl-names = "default";
 	};
 };
-
+	
 &mdss_dsi0 {
+
+	pinctrl-0 = <&panel_default>;
+	pinctrl-1 = <&panel_sleep>;
+	pinctrl-names = "default", "sleep";
+	status = "okay";
+
 	panel@0 {
+		reg = <0>;
 		compatible = "huawei,federer-panel";
 
 		vddio-supply = <&pm8916_l6>;
@@ -199,11 +206,13 @@
 
 		reset-gpios = <&tlmm 25 GPIO_ACTIVE_LOW>;
 
-		pinctrl-0 = <&panel_default>;
-		pinctrl-1 = <&panel_sleep>;
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&mdss_dsi0_out>;
+			};
+		};
 	};
 };
-
 
 &mpss_mem {
 	reg = <0x0 0x86800000 0x0 0x5600000>;
@@ -288,11 +297,11 @@
 		bias-pull-down;
 	};*/
 
-	panel_default: panel-default-state {
+	mdss_default: mdss-default-state {
 		pins = "gpio25";
 	};
 
-	panel_sleep: panel-sleep-state {
+	mdss_sleep: mdss-sleep-state {
 		pins = "gpio25";
 	};
 

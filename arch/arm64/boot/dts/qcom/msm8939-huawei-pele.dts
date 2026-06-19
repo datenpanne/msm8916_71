@@ -102,10 +102,19 @@
 		vddio-supply = <&reg_tp_vddio>;
 	};
 };
-
+	
 &mdss_dsi0 {
+
+	pinctrl-0 = <&panel_default>,<&mdss_te_default>;
+	pinctrl-1 = <&panel_sleep>,<&mdss_te_default>;
+	pinctrl-0 = <&mdss_default &mdss_te_default>;
+	pinctrl-1 = <&mdss_sleep &mdss_te_sleep>;
+	pinctrl-names = "default", "sleep";
+	status = "okay";
+
 	panel@0 {
-		compatible = "huawei,pele-panel";
+		reg = <0>;
+		compatible = "huawei,federer-panel";
 
 		vddio-supply = <&pm8916_l6>;
 		vddio-incell-supply = <&pm8916_l16>;
@@ -117,9 +126,13 @@
 		bl-gpios = <&tlmm 3 GPIO_ACTIVE_HIGH>;
 
 		reset-gpios = <&tlmm 25 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&tlmm 25 GPIO_ACTIVE_LOW>;
 
-		pinctrl-0 = <&panel_default &mdss_te_default>;
-		pinctrl-1 = <&panel_sleep &mdss_te_default>;
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&mdss_dsi0_out>;
+			};
+		};
 	};
 };
 
@@ -177,11 +190,11 @@
 		input-enable;
 	};
 
-	panel_default: panel-default-state {
+	mdss_default: mdss-default-state {
 		pins = "gpio2", "gpio3", "gpio25", "gpio32", "gpio97", "gpio109";
 	};
 
-	panel_sleep: panel-sleep-state {
+	mdss_sleep: mdss-sleep-state {
 		pins = "gpio2", "gpio3", "gpio25", "gpio32", "gpio97", "gpio109";
 	};
 
