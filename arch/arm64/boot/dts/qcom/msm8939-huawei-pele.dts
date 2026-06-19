@@ -105,7 +105,7 @@
 	
 &mdss_dsi0 {
 	pinctrl-0 = <&mdss_default &mdss_te_default>;
-	pinctrl-1 = <&mdss_sleep &mdss_te_sleep>;
+	pinctrl-1 = <&mdss_sleep &mdss_te_default>;
 	pinctrl-names = "default", "sleep";
 	status = "okay";
 
