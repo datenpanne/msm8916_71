@@ -187,8 +187,8 @@
 	
 &mdss_dsi0 {
 
-	pinctrl-0 = <&panel_default>;
-	pinctrl-1 = <&panel_sleep>;
+	pinctrl-0 = <&mdss_default>;
+	pinctrl-1 = <&mdss_sleep>;
 	pinctrl-names = "default", "sleep";
 	status = "okay";
 
