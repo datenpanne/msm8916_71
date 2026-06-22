@@ -268,7 +268,7 @@ static int huawei_nt51021_set_brightness(struct mipi_dsi_device *dsi, u16 bright
 
 static int huawei_nt51021_set_brightness(struct mipi_dsi_device *dsi, u16 brightness)
 {
-	struct huawei_nt51021 *ctx = mipi_dsi_get_drvdata(dsi);
+	//struct huawei_nt51021 *ctx = mipi_dsi_get_drvdata(dsi);
 	struct mipi_dsi_multi_context dsi_ctx = { .dsi = dsi };
 	u8 val = (u8)brightness;
 
@@ -368,8 +368,8 @@ static int huawei_nt51021_probe(struct mipi_dsi_device *dsi)
 	dsi->lanes = 4;
 	dsi->format = MIPI_DSI_FMT_RGB888;
 	dsi->mode_flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_VIDEO_BURST |
-			  MIPI_DSI_MODE_VIDEO_HSE | MIPI_DSI_MODE_NO_EOT_PACKET |
-			  MIPI_DSI_CLOCK_NON_CONTINUOUS;
+			  MIPI_DSI_MODE_VIDEO_HSE | MIPI_DSI_MODE_NO_EOT_PACKET;// |
+			//  MIPI_DSI_CLOCK_NON_CONTINUOUS;
 
 	ctx->panel.prepare_prev_first = true;
 
