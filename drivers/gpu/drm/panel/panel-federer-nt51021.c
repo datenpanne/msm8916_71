@@ -234,6 +234,7 @@ static const struct drm_display_mode huawei_nt51021_mode = {
 	.width_mm = 135,
 	.height_mm = 217,
 	.type = DRM_MODE_TYPE_DRIVER,
+	.flags = DRM_MODE_FLAG_NHSYNC | DRM_MODE_FLAG_NVSYNC,
 };
 
 static int huawei_nt51021_get_modes(struct drm_panel *panel,
@@ -367,9 +368,11 @@ static int huawei_nt51021_probe(struct mipi_dsi_device *dsi)
 
 	dsi->lanes = 4;
 	dsi->format = MIPI_DSI_FMT_RGB888;
-	dsi->mode_flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_VIDEO_BURST |
-			  MIPI_DSI_MODE_VIDEO_HSE | MIPI_DSI_MODE_NO_EOT_PACKET;// |
-			//  MIPI_DSI_CLOCK_NON_CONTINUOUS;
+	dsi->mode_flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_VIDEO_SYNC_PULSE |
+			  MIPI_DSI_MODE_VIDEO_HSE | MIPI_DSI_MODE_NO_EOT_PACKET;
+	/*dsi->mode_flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_VIDEO_BURST |
+			  MIPI_DSI_MODE_VIDEO_HSE;// | MIPI_DSI_MODE_NO_EOT_PACKET |
+			//  MIPI_DSI_CLOCK_NON_CONTINUOUS;*/
 
 	ctx->panel.prepare_prev_first = true;
 
