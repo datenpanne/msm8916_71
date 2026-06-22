@@ -99,7 +99,7 @@
 		sound-name-prefix = "Speaker";
 	};
 
-	reg_lcd_vsp: vsp {
+	/*reg_lcd_vsp: vsp {
 		compatible = "regulator-fixed";
 		regulator-name = "vsp";
 		//regulator-name = "volregP";
@@ -119,7 +119,7 @@
 		regulator-max-microvolt = <5400000>;
 		regulator-always-on;
 		regulator-boot-on; // allows fb console to show up briefly at boot without always-on
-	};
+	};*/
 
 	reg_tp_vdd: regulator-tp-vdd {
 		compatible = "regulator-fixed";
@@ -197,8 +197,8 @@
 		compatible = "huawei,federer-panel";
 
 		vddio-supply = <&pm8916_l6>;
-		avee-supply = <&reg_lcd_vsp>;
-		avdd-supply = <&reg_lcd_vsn>;
+		/*avee-supply = <&reg_lcd_vsp>;
+		avdd-supply = <&reg_lcd_vsn>;*/
 
 		vled-gpios = <&tlmm 97 GPIO_ACTIVE_HIGH>;
 		blk-gpios = <&tlmm 109 GPIO_ACTIVE_HIGH>;
