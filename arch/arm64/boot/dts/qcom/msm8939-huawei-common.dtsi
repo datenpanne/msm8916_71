@@ -182,8 +182,6 @@
 		ti,system-minimum-microvolt = <3300000>;
 		omit-battery-class;
 
-		power-supplies = <&pm8916_bms>;
-
 		usb_otg_vbus: usb-otg-vbus {
 			regulator-name = "usb_otg_vbus";
 			regulator-min-microvolt = <5000000>;

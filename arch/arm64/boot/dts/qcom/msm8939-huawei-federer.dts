@@ -99,28 +99,6 @@
 		sound-name-prefix = "Speaker";
 	};
 
-	/*reg_lcd_vsp: vsp {
-		compatible = "regulator-fixed";
-		regulator-name = "vsp";
-		//regulator-name = "volregP";
-		//vin-supply = <&pm8916_l16>;
-		regulator-min-microvolt = <5400000>;
-		regulator-max-microvolt = <5400000>;
-		regulator-always-on;
-		regulator-boot-on; // allows fb console to show up briefly at boot without always-on
-	};
-
-	reg_lcd_vsn: vsn {
-		compatible = "regulator-fixed";
-		regulator-name = "vsn";
-		//regulator-name = "volregN";
-		//vin-supply = <&pm8916_l16>;
-		regulator-min-microvolt = <5400000>;
-		regulator-max-microvolt = <5400000>;
-		regulator-always-on;
-		regulator-boot-on; // allows fb console to show up briefly at boot without always-on
-	};*/
-
 	reg_tp_vdd: regulator-tp-vdd {
 		compatible = "regulator-fixed";
 		regulator-name = "tp_vdd";
