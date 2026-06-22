@@ -218,8 +218,10 @@
 &pm8916_bms {
 	monitored-battery = <&battery>;
 	power-supplies = <&charger>;
+	
+	status = "disabled";
 
-	status = "okay";
+	//status = "okay";
 };
 
 &pm8916_codec {
