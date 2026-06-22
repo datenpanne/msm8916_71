@@ -182,6 +182,8 @@
 		ti,system-minimum-microvolt = <3300000>;
 		omit-battery-class;
 
+		power-supplies = <&pm8916_bms>;
+
 		usb_otg_vbus: usb-otg-vbus {
 			regulator-name = "usb_otg_vbus";
 			regulator-min-microvolt = <5000000>;
@@ -218,10 +220,8 @@
 &pm8916_bms {
 	monitored-battery = <&battery>;
 	power-supplies = <&charger>;
-	
-	status = "disabled";
 
-	//status = "okay";
+	status = "okay";
 };
 
 &pm8916_codec {
@@ -479,7 +479,7 @@
 		bias-pull-up;
 	};
 };
-
+/*
 / {
 	fuel-gauge {
 	compatible = "adc-battery";
@@ -491,4 +491,4 @@
 		monitored-battery = <&battery>;
 		power-supplies = <&charger>;
 	};
-};
+};*/
