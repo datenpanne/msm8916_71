@@ -171,40 +171,6 @@ static int huawei_nt51021_prepare(struct drm_panel *panel)
 	return 0;
 }
 
-static int huawei_nt51021_prepare(struct drm_panel *panel)
-{
-	struct huawei_nt51021 *ctx = to_huawei_nt51021(panel);
-	struct device *dev = &ctx->dsi->dev;
-	int ret;
-
-	ret = regulator_bulk_enable(ARRAY_SIZE(huawei_nt51021_supplies), ctx->supplies);
-	if (ret < 0) {
-		dev_err(dev, "Failed to enable regulators: %d\n", ret);
-		return ret;
-	}
-	usleep_range(1000, 2000);
-
-	gpiod_set_value_cansleep(ctx->power_blk_gpio, 1);
-	gpiod_set_value_cansleep(ctx->power_panel_gpio, 1);
-	msleep(500);
-
-	huawei_nt51021_reset(ctx);
-
-	msleep(80);
-
-	ret = huawei_nt51021_on(ctx);
-	if (ret < 0) {
-		dev_err(dev, "Failed to initialize panel: %d\n", ret);
-		gpiod_set_value_cansleep(ctx->reset_gpio, 1);
-		gpiod_set_value_cansleep(ctx->power_panel_gpio, 0);
-		gpiod_set_value_cansleep(ctx->power_blk_gpio, 0);
-		regulator_bulk_disable(ARRAY_SIZE(huawei_nt51021_supplies), ctx->supplies);
-		return ret;
-	}
-
-	return 0;
-}
-
 static int huawei_nt51021_enable(struct drm_panel *panel)
 {
 	struct huawei_nt51021 *ctx = to_huawei_nt51021(panel);
@@ -283,22 +249,22 @@ static const struct drm_panel_funcs huawei_nt51021_panel_funcs = {
 	.unprepare = huawei_nt51021_unprepare,
 	.get_modes = huawei_nt51021_get_modes,
 };
-
+/*
 static int huawei_nt51021_set_brightness(struct mipi_dsi_device *dsi, u16 brightness)
 {
 	struct mipi_dsi_multi_context dsi_ctx = { .dsi = dsi };
 	u8 val = (u8)brightness;
 	u8 tx_buf[2] = { NT51021_REG_BKLT_PWM, val };
 
-	dsi->mode_flags &= ~MIPI_DSI_MODE_LPM;
+	dsi->mode_flags &= ~MIPI_DSI_MODE_LPM;*/
 
-	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0x83, 0x00); /* chang_page0_index0 */
-	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0x84, 0x00); /* chang_page0_index1 */
+	//mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0x83, 0x00); /* chang_page0_index0 */
+	//mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0x84, 0x00); /* chang_page0_index1 */
 
-	mipi_dsi_dcs_write_buffer_multi(&dsi_ctx, tx_buf, sizeof(tx_buf));
+	/*mipi_dsi_dcs_write_buffer_multi(&dsi_ctx, tx_buf, sizeof(tx_buf));
 
 	return dsi_ctx.accum_err;
-}
+}*/
 
 static int huawei_nt51021_set_brightness(struct mipi_dsi_device *dsi, u16 brightness)
 {
