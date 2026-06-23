@@ -63,12 +63,12 @@
 		vdd-supply = <&pm8916_l17>;
 		vddio-supply = <&pm8916_l6>;
 
+		pinctrl-0 = <&accel_int_default>;
+		pinctrl-names = "default";
+
 		mount-matrix = "0", "-1", "0",
 			       "0", "1", "0",
 			       "0", "0", "1";
-
-		pinctrl-0 = <&accel_int_default>;
-		pinctrl-names = "default";
 	};
 
 	magnetometer@c {
@@ -122,7 +122,7 @@
 		vled-gpios = <&tlmm 109 GPIO_ACTIVE_HIGH>;
 		bl-gpios = <&tlmm 3 GPIO_ACTIVE_HIGH>;
 
-		reset-gpios = <&tlmm 25 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&tlmm 25 GPIO_ACTIVE_LOW>;
 
 		port {
 			panel_in: endpoint {
@@ -167,6 +167,11 @@
 };
 
 &tlmm {
+	accel_int_default: accel-int-default-state {
+		drive-strength = <6>;
+		bias-pull-up;
+	};
+
 	gpio_leds_default: gpio-leds-default-state {
 		pins = "gpio8", "gpio9", "gpio1";
 	};
@@ -186,13 +191,13 @@
 		input-enable;
 	};
 
-	mdss_default: mdss-default-state {
+	/*mdss_default: mdss-default-state {
 		pins = "gpio2", "gpio3", "gpio25", "gpio32", "gpio97", "gpio109";
 	};
 
 	mdss_sleep: mdss-sleep-state {
 		pins = "gpio2", "gpio3", "gpio25", "gpio32", "gpio97", "gpio109";
-	};
+	};*/
 
 	prox_irq_default: prox-irq-default-state {
 		pins = "gpio113";

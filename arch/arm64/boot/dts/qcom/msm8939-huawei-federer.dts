@@ -51,6 +51,60 @@
 			<3540000 3>, <3458000 2>, <3325000 1>, <3000000 0>;
 	};
 
+	/* Basis-Spannung (GPIO 0) - Muss bei Kopfhörer UND Lautsprecher ON sein */
+	speaker_vdd: regulator-speaker-vdd {
+		compatible = "regulator-fixed";
+		regulator-name = "speaker_vdd";
+		gpio = <&tlmm 0 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		regulator-always-on;
+
+		pinctrl-names = "default", "sleep";
+		pinctrl-0 = <&speaker_vdd_default>;
+		pinctrl-1 = <&speaker_vdd_sleep>;
+	};
+
+	/* Boost-Spannung (GPIO 2) - Nur bei Lautsprecher ON, bei Kopfhörer OFF */
+	speaker_boost: regulator-speaker-boost {
+		compatible = "regulator-fixed";
+		regulator-name = "speaker_boost";
+		gpio = <&tlmm 2 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		
+		/* Hängt an VDD, kann aber unabhängig abgeschaltet werden! */
+		vin-supply = <&speaker_vdd>; 
+
+		pinctrl-names = "default", "sleep";
+		pinctrl-0 = <&speaker_boost_default>;
+		pinctrl-1 = <&speaker_boost_sleep>;
+	};
+
+	/* Der Umschalter (GPIO 1) - Nutzt VDD (GPIO 0) */
+	speaker_switch: audio-switch {
+		compatible = "simple-audio-amplifier";
+		
+		/* Dadurch bleibt der Schalter auch bei Kopfhörern (Boost=OFF) unter Spannung (VDD=ON) */
+		VCC-supply = <&speaker_vdd>; 
+		enable-gpios = <&tlmm 1 GPIO_ACTIVE_HIGH>;
+		
+		sound-name-prefix = "Speaker Switch";
+	};
+
+	/* Der End-Verstärker (GPIO 3) - Hängt am Boost (GPIO 2) */
+	speaker_amp: audio-amplifier {
+		compatible = "simple-audio-amplifier";
+		VCC-supply = <&speaker_boost>; 
+		enable-gpios = <&tlmm 3 GPIO_ACTIVE_HIGH>;
+		startup-delay-us = <200000>; 
+
+		sound-name-prefix = "Speaker";
+		pinctrl-names = "default", "sleep";
+		pinctrl-0 = <&speaker_amp_default>;
+		pinctrl-1 = <&speaker_amp_sleep>;
+
+		sound-name-prefix = "Speaker";
+	};
+
 	/*headphones_switch: audio-switch {
 		compatible = "simple-audio-amplifier";
 		VCC-supply = <&speaker_vdd>;
@@ -63,7 +117,7 @@
 		sound-name-prefix = "Headphones Switch";
 	};*/
 
-	speaker_boost: regulator-speaker-boost {
+	/*speaker_boost: regulator-speaker-boost {
 		compatible = "regulator-fixed";
 		regulator-name = "speaker_boost";
 		gpio = <&tlmm 2 GPIO_ACTIVE_HIGH>; // Boost GPIO
@@ -97,7 +151,7 @@
 		pinctrl-names = "default","sleep";
 		
 		sound-name-prefix = "Speaker";
-	};
+	};*/
 
 	reg_tp_vdd: regulator-tp-vdd {
 		compatible = "regulator-fixed";
@@ -174,8 +228,6 @@
 		compatible = "huawei,federer-panel";
 
 		vddio-supply = <&pm8916_l6>;
-		/*avee-supply = <&reg_lcd_vsp>;
-		avdd-supply = <&reg_lcd_vsn>;*/
 
 		vled-gpios = <&tlmm 97 GPIO_ACTIVE_HIGH>;
 		blk-gpios = <&tlmm 109 GPIO_ACTIVE_HIGH>;
@@ -198,11 +250,11 @@
 
 
 &pm8916_codec {
-	jack-gpios = <&tlmm 1 GPIO_ACTIVE_LOW>;
 	qcom,micbias1-ext-cap;
 
+	/*jack-gpios = <&tlmm 1 GPIO_ACTIVE_LOW>;
 	pinctrl-names = "default";
-	pinctrl-0 = <&headphones_switch_default>;
+	pinctrl-0 = <&headphones_switch_default>;*/
 };
 
 &sdhc_2 {
@@ -210,6 +262,37 @@
 };
 
 &sound {
+	model = "wt86528";
+	widgets =
+		"Speaker", "Speaker",
+		"Headphone", "Headphones",
+		/* Wir verpacken den VDD-Regulator als Audio-Widget, damit ALSA ihn direkt schalten kann */
+		//"Regulator", "Speaker VDD Reg";
+
+	pin-switches = "Speaker", "Speaker Switch";
+	
+	audio-routing =
+		/* Lautsprecher-Kette (schaltet alles kaskadiert ein) */
+		"Speaker", "Speaker OUTL",
+		"Speaker", "Speaker OUTR",
+		"Speaker INL", "Speaker Switch OUTL",
+		"Speaker INR", "Speaker Switch OUTR",
+		"Speaker Switch INL", "HPH_L",
+		"Speaker Switch INR", "HPH_R",
+		
+		/* Kopfhörer-Kette zwingt das VDD-Regulator-Widget auf ON */
+		"Headphones", "HPH_L",
+		"Headphones", "HPH_R",
+		//"Headphones", "Speaker VDD Reg", /* Zwingt GPIO 0 auf ON bei Kopfhörern! */
+		
+		"AMIC1", "MIC BIAS External1",
+		"AMIC2", "MIC BIAS External2",
+		"AMIC3", "MIC BIAS External1";
+		
+	aux-devs = <&speaker_amp>, <&speaker_switch>;
+	status = "okay";
+};
+/*&sound {
 	model = "wt86528";
 	widgets =
 		"Speaker", "Speaker",
@@ -227,7 +310,7 @@
 		"AMIC3", "MIC BIAS External1";
 	aux-devs = <&speaker_amp>;
 	status = "okay";
-};
+};*/
 
 &usb_id {
     id-gpios = <&tlmm 117 GPIO_ACTIVE_HIGH>;
@@ -238,19 +321,24 @@
 };
 
 &tlmm {
+	accel_int_default: accel-int-default-state {
+		drive-strength = <2>;
+		bias-disable;
+	};
+
 	gpio_leds_default: gpio-leds-default-state {
 		pins = "gpio8", "gpio9", "gpio10";
 	};
 
-	/* GPIO 1 - Headphones Switch */
+	/* GPIO 1 - Headphones Switch
 	headphones_switch_default: headphones-switch-default {
 		pins = "gpio1";
 		function = "gpio";
 		drive-strength = <2>;
 		bias-disable;
 		output-low;
-		//bias-pull-up; /* Falls High = Kopfhörer-Pfad aktiv */
-	};
+		//bias-pull-up; //Falls High = Kopfhörer-Pfad aktiv
+	};*/
 
 	/*headphones_switch_sleep: headphones-switch-sleep {
 		pins = "gpio1";
@@ -282,27 +370,27 @@
 		input-enable;
 	};
 
-	mdss_default: mdss-default-state {
+	/*mdss_default: mdss-default-state {
 		pins = "gpio25";
 	};
 
 	mdss_sleep: mdss-sleep-state {
 		pins = "gpio25";
-	};
+	};*/
 
 	/* GPIO 3 - Speaker Enable */
 	speaker_amp_default: speaker-amp-default {
 		pins = "gpio3";
 		function = "gpio";
 		drive-strength = <2>;
-		bias-pull-up;
+		bias-disable; /* Kein interner Widerstand, der Kernel steuert den Pin aktiv */
 	};
 
 	speaker_amp_sleep: speaker-amp-sleep {
 		pins = "gpio3";
 		function = "gpio";
 		drive-strength = <2>;
-		bias-pull-down;
+		bias-pull-down; /* Zwingt den Pin im Standby sicher auf LOW (Masse) */
 	};
 
 	/* GPIO 2 - Speaker Boost */
@@ -320,7 +408,7 @@
 		bias-pull-down;
 	};
 
-	/* GPIO 0 - Speaker VDD
+	/* GPIO 0 - Speaker VDD */
 	speaker_vdd_default: speaker-vdd-default {
 		pins = "gpio0";
 		function = "gpio";
@@ -333,7 +421,7 @@
 		function = "gpio";
 		drive-strength = <2>;
 		bias-pull-down;
-	}; */
+	};
 
 	touchscreen_default: touchscreen-default-state {
 		pins = "gpio12", "gpio13";
