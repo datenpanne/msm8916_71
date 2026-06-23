@@ -58,7 +58,7 @@
 		compatible = "bosch,bma255";
 		reg = <0x18>;
 
-		interrupts-extended = <115 IRQ_TYPE_EDGE_RISING>;
+		interrupts-extended = <&tlmm 115 IRQ_TYPE_EDGE_FALLING>;
 
 		vdd-supply = <&pm8916_l17>;
 		vddio-supply = <&pm8916_l6>;

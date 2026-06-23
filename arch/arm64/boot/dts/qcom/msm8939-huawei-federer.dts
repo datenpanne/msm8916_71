@@ -136,7 +136,7 @@
 		regulator-always-on;
 		/*pinctrl-0 = <&speaker_vdd_default>;
 		pinctrl-1 = <&speaker_vdd_sleep>;
-		pinctrl-names = "default","sleep";*/
+		pinctrl-names = "default","sleep";
 	};
 
 	speaker_amp: audio-amplifier {

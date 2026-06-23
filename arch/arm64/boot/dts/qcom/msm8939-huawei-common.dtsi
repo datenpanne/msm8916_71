@@ -392,8 +392,6 @@
 	accel_int_default: accel-int-default-state {
 		pins = "gpio115";
 		function = "gpio";
-		drive-strength = <2>;
-		bias-disable;
 	};
 
 	bq24296_ce_hog: bq24296-ce-hog-state {
