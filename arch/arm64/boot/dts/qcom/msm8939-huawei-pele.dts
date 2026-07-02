@@ -116,13 +116,12 @@
 		vddio-supply = <&pm8916_l6>;
 		vddio-incell-supply = <&pm8916_l16>;
 
-		vcc-gpios = <&tlmm 2 GPIO_ACTIVE_HIGH>;
-		vsp-gpios = <&tlmm 97 GPIO_ACTIVE_HIGH>;
-		vsn-gpios = <&tlmm 32 GPIO_ACTIVE_HIGH>;
-		vled-gpios = <&tlmm 109 GPIO_ACTIVE_HIGH>;
-		bl-gpios = <&tlmm 3 GPIO_ACTIVE_HIGH>;
-
 		reset-gpios = <&tlmm 25 GPIO_ACTIVE_LOW>;
+		vcc-gpios   = <&tlmm 2 GPIO_ACTIVE_HIGH>;
+		vsp-gpios   = <&tlmm 97 GPIO_ACTIVE_HIGH>;
+		vsn-gpios   = <&tlmm 32 GPIO_ACTIVE_HIGH>;
+		vled-gpios  = <&tlmm 109 GPIO_ACTIVE_HIGH>;
+		bl-gpios    = <&tlmm 3 GPIO_ACTIVE_HIGH>;
 
 		port {
 			panel_in: endpoint {
