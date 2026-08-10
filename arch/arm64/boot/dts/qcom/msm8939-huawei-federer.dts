@@ -51,6 +51,44 @@
 			<3540000 3>, <3458000 2>, <3325000 1>, <3000000 0>;
 	};
 
+	cam_vana_reg: cam-vana-regulator {
+		compatible = "regulator-fixed";
+		regulator-name = "cam_vana";
+		gpio = <&tlmm 110 GPIO_ACTIVE_HIGH>;
+		pinctrl-0 = <&cam_sensor_vana_default>;
+		pinctrl-names = "default";
+		enable-active-high;
+		regulator-always-on;
+	};
+
+	cam_vdig_reg: cam-vdig-regulator {
+		compatible = "regulator-fixed";
+		regulator-name = "cam_vdig";
+		gpio = <&tlmm 121 GPIO_ACTIVE_HIGH>;
+		pinctrl-0 = <&cam_sensor_vdig_default>;
+		pinctrl-names = "default";
+		enable-active-high;
+	};
+
+	cam_vio_reg: cam-vio-regulator {
+		compatible = "regulator-fixed";
+		regulator-name = "cam_vio";
+		gpio = <&tlmm 114 GPIO_ACTIVE_HIGH>;
+		pinctrl-0 = <&cam_sensor_vdio_default>;
+		pinctrl-names = "default";
+		enable-active-high;
+	};
+
+	/* AF_PWDM */
+	cam_vaf_reg: cam-vaf-regulator {
+		compatible = "regulator-fixed";
+		regulator-name = "cam_vaf";
+		vin-supply = <&pm8916_l10>;
+		gpio = <&tlmm 120 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		regulator-always-on;
+	};
+
 	/* Basis-Spannung (GPIO 0) - Muss bei Kopfhörer UND Lautsprecher ON sein */
 	speaker_vdd: regulator-speaker-vdd {
 		compatible = "regulator-fixed";
@@ -161,13 +199,97 @@
 		reset-gpios = <&tlmm 12 GPIO_ACTIVE_LOW>;
 
 		vdd-supply = <&reg_tp_vdd>;
-		vddio-supply = <&pm8916_l16>;
+		vddio-supply = <&pm8916_l16>;cam_vio_reg
 
 		pinctrl-0 = <&touchscreen_default>;
 		pinctrl-names = "default";
 	};
 };
-	
+
+&camss {
+	vdda-supply = <&pm8916_l2>;
+	status = "okay";
+
+	ports {
+		port@0 {
+			reg = <0>;
+
+			csiphy0_ov8858_ep: endpoint@0 {
+				reg = <0>;
+				clock-lanes = <7>;
+				data-lanes = <0 1 2 3>;
+				remote-endpoint = <&ov8858_ep>;
+			};
+
+			csiphy0_imx219_ep: endpoint@1 {
+				reg = <1>;
+				clock-lanes = <7>;
+				data-lanes = <0 1 2 3>;
+				remote-endpoint = <&imx219_ep>;
+			};
+		};
+	};
+};
+
+&cci {
+	status = "okay";
+};
+
+&cci_i2c0 {
+	camera_imx219: camera-sensor@10 {
+		compatible = "sony,imx219";
+		reg = <0x10>;
+
+		clocks = <&gcc GCC_CAMSS_MCLK0_CLK>;
+		clock-names = "xclk";
+
+		reset-gpios = <&tlmm 35 GPIO_ACTIVE_LOW>;
+
+		VANA-supply = <&cam_vana_reg>;
+		VDIG-supply = <&cam_vdig_reg>;
+		VDO_VDD-supply = <&cam_vio_reg>;
+
+		orientation = <1>;
+		rotation = <90>;
+
+		port {
+			imx219_ep: endpoint {
+				remote-endpoint = <&csiphy0_imx219_ep>;
+				data-lanes = <0 1 2 3>;
+				link-frequencies = /bits/ 64 <456000000>;
+			};
+		};
+	};
+
+	camera_ov8858: camera-sensor@18 {
+		compatible = "ovti,ov8858";
+		reg = <0x18>;
+
+		clocks = <&gcc GCC_CAMSS_MCLK0_CLK>;
+		clock-names = "xvclk";
+		assigned-clocks = <&gcc GCC_CAMSS_MCLK0_CLK>;
+		assigned-clock-rates = <24000000>;
+
+		reset-gpios = <&msmgpio 35 GPIO_ACTIVE_LOW>;
+		powerdown-gpios  = <&msmgpio 34 GPIO_ACTIVE_HIGH>;
+
+		dovdd-supply = <&cam_vio_reg>;  /* Verweist auf GPIO 114 */
+		avdd-supply = <&cam_vana_reg>;  /* Verweist auf GPIO 110 */
+		dvdd-supply = <&cam_vdig_reg>;  /* Verweist auf GPIO 121 */
+
+		orientation = <1>;
+		rotation = <90>;
+
+		port {
+			ov8858_ep: endpoint {
+				remote-endpoint = <&csiphy0_ov8858_ep>;
+				data-lanes = <0 1 2 3>;
+				link-frequencies = /bits/ 64 <360000000>;
+			};
+		};
+	};
+};
+
 &mdss_dsi0 {
 	pinctrl-0 = <&mdss_default &mdss_te_default>;
 	pinctrl-1 = <&mdss_sleep &mdss_te_default>;
