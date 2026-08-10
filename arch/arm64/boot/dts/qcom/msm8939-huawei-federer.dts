@@ -270,12 +270,12 @@
 		assigned-clocks = <&gcc GCC_CAMSS_MCLK0_CLK>;
 		assigned-clock-rates = <24000000>;
 
-		reset-gpios = <&msmgpio 35 GPIO_ACTIVE_LOW>;
-		powerdown-gpios  = <&msmgpio 34 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&tlmm 35 GPIO_ACTIVE_LOW>;
+		powerdown-gpios  = <&tlmm 34 GPIO_ACTIVE_HIGH>;
 
-		dovdd-supply = <&cam_vio_reg>;  /* Verweist auf GPIO 114 */
-		avdd-supply = <&cam_vana_reg>;  /* Verweist auf GPIO 110 */
-		dvdd-supply = <&cam_vdig_reg>;  /* Verweist auf GPIO 121 */
+		dovdd-supply = <&cam_vio_reg>;
+		avdd-supply = <&cam_vana_reg>;
+		dvdd-supply = <&cam_vdig_reg>;
 
 		orientation = <1>;
 		rotation = <90>;
