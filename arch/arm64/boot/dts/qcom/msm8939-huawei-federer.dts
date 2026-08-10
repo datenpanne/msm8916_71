@@ -213,6 +213,8 @@
 	ports {
 		port@0 {
 			reg = <0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
 
 			csiphy0_ov8858_ep: endpoint@0 {
 				reg = <0>;
@@ -226,6 +228,26 @@
 				clock-lanes = <7>;
 				data-lanes = <0 1 2 3>;
 				remote-endpoint = <&imx219_ep>;
+			};
+		};
+
+		port@1 { // front ov2680_byd_bm2920b_pad(cmi) gc2355_ofilm_ohw2f03_pad(boe)
+			reg = <1>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			csiphy1_ov2680_ep: endpoint@0 {
+				reg = <0>;
+				clock-lanes = <7>;
+				data-lanes = <0>;
+				remote-endpoint = <&ov2680_ep>;
+			};
+
+			csiphy1_gc2355_ep: endpoint@1 {
+				reg = <1>;
+				clock-lanes = <7>;
+				data-lanes = <0>;
+				remote-endpoint = <&gc2355_ep>;
 			};
 		};
 	};
@@ -247,7 +269,10 @@
 
 		VANA-supply = <&cam_vana_reg>;
 		VDIG-supply = <&cam_vdig_reg>;
-		VDO_VDD-supply = <&cam_vio_reg>;
+		VDDL-supply = <&cam_vio_reg>;
+
+		pinctrl-0 = <&camera_rear_default>;
+		pinctrl-names = "default";
 
 		orientation = <1>;
 		rotation = <90>;
@@ -256,7 +281,7 @@
 			imx219_ep: endpoint {
 				remote-endpoint = <&csiphy0_imx219_ep>;
 				data-lanes = <0 1 2 3>;
-				link-frequencies = /bits/ 64 <456000000>;
+				link-frequencies = /bits/ 64 <364000000>;
 			};
 		};
 	};
@@ -277,6 +302,9 @@
 		avdd-supply = <&cam_vana_reg>;
 		dvdd-supply = <&cam_vdig_reg>;
 
+		pinctrl-0 = <&camera_rear_default>;
+		pinctrl-names = "default";
+
 		orientation = <1>;
 		rotation = <90>;
 
@@ -285,6 +313,57 @@
 				remote-endpoint = <&csiphy0_ov8858_ep>;
 				data-lanes = <0 1 2 3>;
 				link-frequencies = /bits/ 64 <360000000>;
+			};
+		};
+	};
+
+	front_cam_ov2680: camera-sensor@36 {
+		compatible = "ovti,ov2680";
+		reg = <0x36>;
+		clocks = <&gcc GCC_CAMSS_MCLK1_CLK>;
+		clock-names = "xvclk";
+
+		reset-gpios = <&tlmm 28 GPIO_ACTIVE_LOW>;
+		powerdown-gpios = <&tlmm 33 GPIO_ACTIVE_HIGH>;
+
+		DOVDD-supply = <&cam_vio_reg>;
+		AVDD-supply = <&cam_vana_reg>;
+		DVDD-supply = <&cam_vio_reg>;
+
+		pinctrl-0 = <&camera_front_default>;
+		pinctrl-names = "default";
+
+		port {
+			ov2680_ep: endpoint {
+				remote-endpoint = <&csiphy1_ov2680_ep>;
+				data-lanes = <0>;
+				link-frequencies = /bits/ 64 <330000000>;
+			};
+		};
+	};
+
+	// HINT: Erfordert den manuell importierten gc2355.c Treiber
+	front_cam_gc2355: camera-sensor@3c {
+		compatible = "galaxycore,gc2355";
+		reg = <0x3c>;
+
+		clocks = <&gcc GCC_CAMSS_MCLK1_CLK>;
+		clock-names = "xclk";
+
+		reset-gpios = <&tlmm 28 GPIO_ACTIVE_LOW>;
+		powerdown-gpios = <&tlmm 33 GPIO_ACTIVE_HIGH>;
+
+		VANA-supply = <&cam_vana_reg>;
+		VDIO-supply = <&cam_vio_reg>;
+
+		pinctrl-0 = <&camera_front_default>;
+		pinctrl-names = "default";
+
+		port {
+			gc2355_ep: endpoint {
+				remote-endpoint = <&csiphy1_gc2355_ep>;
+				data-lanes = <0>;
+				link-frequencies = /bits/ 64 <240000000>;
 			};
 		};
 	};
