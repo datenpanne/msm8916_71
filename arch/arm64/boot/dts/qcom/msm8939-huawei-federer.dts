@@ -55,8 +55,8 @@
 		compatible = "regulator-fixed";
 		regulator-name = "cam_vana";
 		gpio = <&tlmm 110 GPIO_ACTIVE_HIGH>;
-		pinctrl-0 = <&cam_sensor_vana_default>;
-		pinctrl-names = "default";
+		//pinctrl-0 = <&cam_sensor_vana_default>;
+		//pinctrl-names = "default";
 		enable-active-high;
 		regulator-always-on;
 	};
@@ -65,8 +65,8 @@
 		compatible = "regulator-fixed";
 		regulator-name = "cam_vdig";
 		gpio = <&tlmm 121 GPIO_ACTIVE_HIGH>;
-		pinctrl-0 = <&cam_sensor_vdig_default>;
-		pinctrl-names = "default";
+		//pinctrl-0 = <&cam_sensor_vdig_default>;
+		//pinctrl-names = "default";
 		enable-active-high;
 	};
 
@@ -74,8 +74,8 @@
 		compatible = "regulator-fixed";
 		regulator-name = "cam_vio";
 		gpio = <&tlmm 114 GPIO_ACTIVE_HIGH>;
-		pinctrl-0 = <&cam_sensor_vdio_default>;
-		pinctrl-names = "default";
+		//pinctrl-0 = <&cam_sensor_vdio_default>;
+		//pinctrl-names = "default";
 		enable-active-high;
 	};
 
