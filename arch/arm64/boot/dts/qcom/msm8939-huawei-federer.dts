@@ -243,12 +243,12 @@
 				remote-endpoint = <&ov2680_ep>;
 			};
 
-			csiphy1_gc2355_ep: endpoint@1 {
+			/*csiphy1_gc2355_ep: endpoint@1 {
 				reg = <1>;
 				clock-lanes = <7>;
 				data-lanes = <0>;
 				remote-endpoint = <&gc2355_ep>;
-			};
+			};*/
 		};
 	};
 };
@@ -271,8 +271,8 @@
 		VDIG-supply = <&cam_vdig_reg>;
 		VDDL-supply = <&cam_vio_reg>;
 
-		pinctrl-0 = <&camera_rear_default>;
-		pinctrl-names = "default";
+		//pinctrl-0 = <&camera_rear_default>;
+		//pinctrl-names = "default";
 
 		orientation = <1>;
 		rotation = <90>;
@@ -302,8 +302,8 @@
 		avdd-supply = <&cam_vana_reg>;
 		dvdd-supply = <&cam_vdig_reg>;
 
-		pinctrl-0 = <&camera_rear_default>;
-		pinctrl-names = "default";
+		//pinctrl-0 = <&camera_rear_default>;
+		//pinctrl-names = "default";
 
 		orientation = <1>;
 		rotation = <90>;
@@ -337,12 +337,12 @@
 			ov2680_ep: endpoint {
 				remote-endpoint = <&csiphy1_ov2680_ep>;
 				data-lanes = <0>;
-				link-frequencies = /bits/ 64 <330000000>;
+				link-frequencies = /bits/ 64 <331200000>;
 			};
 		};
 	};
 
-	// HINT: Erfordert den manuell importierten gc2355.c Treiber
+	/* // HINT: Erfordert den manuell importierten gc2355.c Treiber
 	front_cam_gc2355: camera-sensor@3c {
 		compatible = "galaxycore,gc2355";
 		reg = <0x3c>;
@@ -366,7 +366,7 @@
 				link-frequencies = /bits/ 64 <240000000>;
 			};
 		};
-	};
+	};*/
 };
 
 &mdss_dsi0 {
@@ -549,6 +549,17 @@
 
 	usb_id_default: usb-id-default-state {
 		pins = "gpio117";
+	};
+
+	camera_hog: camera-hog-pins {
+		gpio-hog;
+		// Hier listen wir die Pins auf, die sofort aktiv sein müssen:
+		gpios = <35 GPIO_ACTIVE_LOW>, 
+		        <34 GPIO_ACTIVE_HIGH>, 
+		        <26 GPIO_ACTIVE_LOW>;
+		
+		output-high; // Schaltet die Stromschienen/Resets sofort beim Booten scharf
+		line-name = "camera-shared-lines";
 	};
 };
 
