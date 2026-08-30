@@ -311,14 +311,14 @@
 			function = LED_FUNCTION_FLASH;
 			color = <LED_COLOR_ID_WHITE>;
 			gpios = <&tlmm 86 GPIO_ACTIVE_HIGH>;
-			led-sources = <0 1>;
+			led-sources = <0>, <1>;
 		};
 		torch_led {
 			linux,default-trigger = "torch";
 			function = LED_FUNCTION_TORCH;
 			color = <LED_COLOR_ID_WHITE>;
 			gpios = <&tlmm 31 GPIO_ACTIVE_HIGH >;
-			led-sources = <0 0>;
+			led-sources = <0>, <0>;
 		};
 	};
 
@@ -801,10 +801,13 @@
 	status = "okay";
 };
 
+&venus_mem {
+	status = "okay";
+};
+
 &usb_hs_phy {
 	//extcon = <&usb_id>;
 	extcon = <&charger>;
-};
 
 &venus_mem {
 	status = "okay";
@@ -913,7 +916,7 @@
 		//function = "gpio";
 		function = "mdp_vsync";
 		drive-strength = <2>;
-		bias-disable;
+		bias-pull-disable;
 	};
 
 	mdss_te_sleep: mdss-te-sleep-state {
