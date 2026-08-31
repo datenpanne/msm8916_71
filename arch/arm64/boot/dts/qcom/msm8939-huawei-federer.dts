@@ -342,7 +342,7 @@
 			"FLASH_NOW";
 	};*/
 };
-/*
+
 &blsp_i2c4 {
 	status = "okay";
 	
@@ -454,8 +454,8 @@
 		VDIG-supply = <&cam_vdig_reg>;
 		VDDL-supply = <&cam_vio_reg>;
 
-		//pinctrl-0 = <&camera_rear_default>;
-		//pinctrl-names = "default";
+		pinctrl-0 = <&camera_rear_default>;
+		pinctrl-names = "default";
 
 		orientation = <1>;
 		rotation = <90>;
@@ -525,7 +525,8 @@
 		};
 	};
 
-	/* // HINT: Erfordert den manuell importierten gc2355.c Treiber
+	// HINT: Erfordert den manuell importierten gc2355.c Treiber
+	/*
 	front_cam_gc2355: camera-sensor@3c {
 		compatible = "galaxycore,gc2355";
 		reg = <0x3c>;
