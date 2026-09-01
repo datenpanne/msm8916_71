@@ -54,33 +54,29 @@ static int pele_jdi_r69429_on(struct pele_jdi_r69429 *ctx)
 {
 	struct mipi_dsi_multi_context dsi_ctx = { .dsi = ctx->dsi };
 
-	/* DCS Long Write (0x29) erfordert mipi_dsi_dcs_write_seq_multi */
-	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xb0, 0x00);
-	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xb3, 0x04, 0x08, 0x00, 0x22, 0x00);
-	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xb6, 0x3a, 0xd3);
-	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xb8, 0x07, 0x90, 0x1e, 0x00, 0x1e, 0x32);
-	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xb9, 0x07, 0x82, 0x3c, 0x00, 0x3c, 0x87);
-	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xba, 0x07, 0x9e, 0x20, 0x00, 0x20, 0x8f);
-	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xce,
+	mipi_dsi_generic_write_seq_multi(&dsi_ctx, 0xb0, 0x00);
+	mipi_dsi_generic_write_seq_multi(&dsi_ctx, 0xb3, 0x04, 0x08, 0x00, 0x22, 0x00);
+	mipi_dsi_generic_write_seq_multi(&dsi_ctx, 0xb6, 0x3a, 0xd3);
+	mipi_dsi_generic_write_seq_multi(&dsi_ctx, 0xb8, 0x07, 0x90, 0x1e, 0x00, 0x1e, 0x32);
+	mipi_dsi_generic_write_seq_multi(&dsi_ctx, 0xb9, 0x07, 0x82, 0x3c, 0x00, 0x3c, 0x87);
+	mipi_dsi_generic_write_seq_multi(&dsi_ctx, 0xba, 0x07, 0x9e, 0x20, 0x00, 0x20, 0x8f);
+	mipi_dsi_generic_write_seq_multi(&dsi_ctx, 0xce,
 					 0x7d, 0x40, 0x43, 0x49, 0x55, 0x62,
 					 0x71, 0x82, 0x94, 0xa8, 0xb9, 0xcb,
 					 0xdb, 0xe9, 0xf5, 0xfc, 0xff, 0x01,
 					 0x38, 0x02, 0x02, 0x44, 0x24);
-	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xd6, 0x01);
-	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, 0xc6,
+	mipi_dsi_generic_write_seq_multi(&dsi_ctx, 0xd6, 0x01);
+	mipi_dsi_generic_write_seq_multi(&dsi_ctx, 0xc6,
 					 0x78, 0x01, 0x45, 0x05, 0x67, 0x67,
 					 0x0a, 0x01, 0x01, 0x01, 0x01, 0x01,
 					 0x01, 0x01, 0x01, 0x01, 0x01, 0x0a,
 					 0x19, 0x05);
-
 	mipi_dsi_dcs_set_tear_on_multi(&dsi_ctx, MIPI_DSI_DCS_TEAR_MODE_VBLANK);
-	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, MIPI_DCS_SET_ADDRESS_MODE, 0x00);
-	
-	/* 0x55 ist der korrekte MIPI-Standardwert für 24-Bit (RGB888) */
-	mipi_dsi_dcs_set_pixel_format_multi(&dsi_ctx, 0x55);
-	
+	mipi_dsi_dcs_set_pixel_format_multi(&dsi_ctx, 0x77);
+	mipi_dsi_generic_write_seq_multi(&dsi_ctx, 0x44, 0x07, 0x7F);
 	mipi_dsi_dcs_set_column_address_multi(&dsi_ctx, 0x0000, 0x04af);
 	mipi_dsi_dcs_set_page_address_multi(&dsi_ctx, 0x0000, 0x077f);
+	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, MIPI_DCS_WRITE_MEMORY_START, 0x00);
 	mipi_dsi_dcs_set_display_brightness_multi(&dsi_ctx, 0x00);
 	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, MIPI_DCS_WRITE_CONTROL_DISPLAY, 0x24);
 	mipi_dsi_dcs_write_seq_multi(&dsi_ctx, MIPI_DCS_SET_CABC_MIN_BRIGHTNESS, 0x06);
@@ -136,7 +132,7 @@ static int pele_jdi_r69429_prepare(struct drm_panel *panel)
 	msleep(5);
 
 	pele_jdi_r69429_reset(ctx);
-	msleep(80);
+	msleep(120);
 
 	ret = pele_jdi_r69429_on(ctx);
 	if (ret < 0) {
@@ -185,7 +181,6 @@ static int pele_jdi_r69429_unprepare(struct drm_panel *panel)
 	gpiod_set_value_cansleep(ctx->vcc_gpio, 0);
 	msleep(1);
 
-	/* 4. vddio Regler kappen */
 	regulator_bulk_disable(ARRAY_SIZE(pele_jdi_r69429_supplies), ctx->supplies);
 	msleep(2);
 
@@ -224,7 +219,6 @@ static int pele_jdi_r69429_bl_update_status(struct backlight_device *bl)
 	struct mipi_dsi_device *dsi = bl_get_data(bl);
 	u16 brightness = backlight_get_brightness(bl);
 
-	/* Helligkeitsbefehle laufen im LPM sicher und direkt über DCS */
 	return mipi_dsi_dcs_set_display_brightness(dsi, brightness);
 }
 
@@ -307,11 +301,13 @@ static int pele_jdi_r69429_probe(struct mipi_dsi_device *dsi)
 	dsi->lanes = 4;
 	dsi->format = MIPI_DSI_FMT_RGB888;
 	
-	/* Wichtig für Command-Mode Panels: Non-Continuous Clock + LPM erzwingen */
-	dsi->mode_flags = MIPI_DSI_CLOCK_NON_CONTINUOUS | MIPI_DSI_MODE_LPM;
-
+	//dsi->mode_flags = MIPI_DSI_CLOCK_NON_CONTINUOUS | MIPI_DSI_MODE_LPM;
+	dsi->mode_flags = MIPI_DSI_MODE_VIDEO_BURST | MIPI_DSI_MODE_VIDEO_HSE |
+			  MIPI_DSI_CLOCK_NON_CONTINUOUS;
 	drm_panel_init(&ctx->panel, dev, &pele_jdi_r69429_panel_funcs,
 		       DRM_MODE_CONNECTOR_DSI);
+
+	//ctx->panel.prepare_prev_first = true;
 
 	ctx->panel.backlight = pele_jdi_r69429_create_backlight(dsi);
 	if (IS_ERR(ctx->panel.backlight))

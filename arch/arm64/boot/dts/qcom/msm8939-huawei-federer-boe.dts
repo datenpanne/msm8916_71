@@ -1,0 +1,121 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/dts-v1/;
+
+#include "msm8939-huawei-federer-common.dtsi"
+
+/ {
+	model = "Huawei MediaPad T2 10.0 Pro (BOE Revision)";
+	compatible = "huawei,federer", "qcom,msm8939";
+	chassis-type = "tablet";
+};
+
+&blsp_i2c2 {
+	status = "okay";
+
+	accelerometer@1f {
+		compatible = "kionix,kx023-1025";
+		reg = <0x1f>;
+
+		vdd-supply = <&pm8916_l17>;
+		vddio-supply = <&pm8916_l6>;
+		pinctrl-0 = <&accel_int_default>;
+		pinctrl-names = "default";
+		mount-matrix =  "-1", "0", "0",
+				"0", "-1", "0",
+				"0", "0", "1";
+	};
+};
+
+&camss {
+	vdda-supply = <&pm8916_l2>;
+	status = "okay";
+
+	ports {
+		port@0 {
+			reg = <0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			csiphy0_imx219_ep: endpoint@1 {
+				reg = <1>;
+				clock-lanes = <7>;
+				data-lanes = <0 1 2 3>;
+				remote-endpoint = <&imx219_ep>;
+			};
+		};
+
+		//not available in mainline kernel
+		/*port@1 {
+			reg = <1>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			csiphy1_gc2355_ep: endpoint@1 {
+				reg = <1>;
+				clock-lanes = <7>;
+				data-lanes = <0>;
+				remote-endpoint = <&gc2355_ep>;
+			};
+		};*/
+	};
+};
+
+&cci_i2c0 {
+	camera_imx219: camera-sensor@10 {
+		compatible = "sony,imx219";
+		reg = <0x10>;
+
+		clocks = <&gcc GCC_CAMSS_MCLK0_CLK>;
+		clock-names = "xclk";
+		assigned-clocks = <&gcc GCC_CAMSS_MCLK0_CLK>;
+		assigned-clock-rates = <24000000>;
+
+		reset-gpios = <&tlmm 35 GPIO_ACTIVE_LOW>;
+
+		VANA-supply = <&cam_vana_reg>;
+		VDIG-supply = <&cam_vdig_reg>;
+		VDDL-supply = <&cam_vio_reg>;
+
+		pinctrl-0 = <&camera_rear_default>,<&camera_rear_flash_default>;
+		pinctrl-1 = <&camera_rear_flash_sleep>;
+		pinctrl-names = "default","sleep";
+
+		orientation = <1>;
+		rotation = <90>;
+
+		port {
+			imx219_ep: endpoint {
+				remote-endpoint = <&csiphy0_imx219_ep>;
+				data-lanes = <0 1 2 3>;
+				link-frequencies = /bits/ 64 <364000000>;
+			};
+		};
+	};
+
+	// not abailable in mainline kernel
+	/*
+	front_cam_gc2355: camera-sensor@3c {
+		compatible = "galaxycore,gc2355";
+		reg = <0x3c>;
+
+		clocks = <&gcc GCC_CAMSS_MCLK1_CLK>;
+		clock-names = "xclk";
+
+		reset-gpios = <&tlmm 28 GPIO_ACTIVE_LOW>;
+		powerdown-gpios = <&tlmm 33 GPIO_ACTIVE_HIGH>;
+
+		VANA-supply = <&cam_vana_reg>;
+		VDIO-supply = <&cam_vio_reg>;
+
+		pinctrl-0 = <&camera_front_default>;
+		pinctrl-names = "default";
+
+		port {
+			gc2355_ep: endpoint {
+				remote-endpoint = <&csiphy1_gc2355_ep>;
+				data-lanes = <0>;
+				link-frequencies = /bits/ 64 <240000000>;
+			};
+		};
+	};*/
+};

@@ -13,10 +13,6 @@
 #include <dt-bindings/pinctrl/qcom,pmic-mpp.h>
 
 / {
-	model = "Huawei MediaPad T2 10.0 Pro";
-	compatible = "huawei,federer", "qcom,msm8939";
-	chassis-type = "tablet";
-
 	aliases {
 		mmc0 = &sdhc_1; /* eMMC */
 		mmc1 = &sdhc_2; /* SD card */
@@ -276,19 +272,6 @@
 &blsp_i2c2 {
 	status = "okay";
 
-	accelerometer@1f {
-		compatible = "kionix,kx023-1025";
-		reg = <0x1f>;
-
-		vdd-supply = <&pm8916_l17>;
-		vddio-supply = <&pm8916_l6>;
-		pinctrl-0 = <&accel_int_default>;
-		pinctrl-names = "default";
-		mount-matrix =  "-1", "0", "0",
-				"0", "-1", "0",
-				"0", "0", "1";
-	};
-
 	light@38 {
 		compatible = "rohm,bh1745";
 		reg = <0x38>;
@@ -297,27 +280,25 @@
 	};
 
 	flash-led-controller@63 {
-		compatible = "leds-lm3642";
+		compatible = "ti,leds-lm3642", "leds-lm3642";
 		reg = <0x63>;
 
-		pinctrl-0 = <&camera_rear_flash_default>;
+		/*pinctrl-0 = <&camera_rear_flash_default>;
 		pinctrl-1 = <&camera_rear_flash_sleep>;
 		pinctrl-names = "default","sleep";
 
-		//gpios = <&tlmm 86 GPIO_ACTIVE_HIGH>,<&tlmm 31 GPIO_ACTIVE_HIGH >;
+		//gpios = <&tlmm 86 GPIO_ACTIVE_HIGH>,<&tlmm 31 GPIO_ACTIVE_HIGH >;*/
 
 		flash_led {
 			linux,default-trigger = "flash";
 			function = LED_FUNCTION_FLASH;
 			color = <LED_COLOR_ID_WHITE>;
-			gpios = <&tlmm 86 GPIO_ACTIVE_HIGH>;
 			led-sources = <0 1>;
 		};
 		torch_led {
 			linux,default-trigger = "torch";
 			function = LED_FUNCTION_TORCH;
 			color = <LED_COLOR_ID_WHITE>;
-			gpios = <&tlmm 31 GPIO_ACTIVE_HIGH >;
 			led-sources = <0 0>;
 		};
 	};
@@ -389,168 +370,11 @@
 	};
 };
 
-&camss {
-	vdda-supply = <&pm8916_l2>;
-	status = "okay";
-
-	ports {
-		port@0 {
-			reg = <0>;
-			#address-cells = <1>;
-			#size-cells = <0>;
-
-			csiphy0_ov8858_ep: endpoint@0 {
-				reg = <0>;
-				clock-lanes = <7>;
-				data-lanes = <0 1 2 3>;
-				remote-endpoint = <&ov8858_ep>;
-			};
-
-			csiphy0_imx219_ep: endpoint@1 {
-				reg = <1>;
-				clock-lanes = <7>;
-				data-lanes = <0 1 2 3>;
-				remote-endpoint = <&imx219_ep>;
-			};
-		};
-
-		port@1 { // front ov2680_byd_bm2920b_pad(cmi) gc2355_ofilm_ohw2f03_pad(boe)
-			reg = <1>;
-			#address-cells = <1>;
-			#size-cells = <0>;
-
-			csiphy1_ov2680_ep: endpoint@0 {
-				reg = <0>;
-				clock-lanes = <7>;
-				data-lanes = <0>;
-				remote-endpoint = <&ov2680_ep>;
-			};
-
-			/*csiphy1_gc2355_ep: endpoint@1 {
-				reg = <1>;
-				clock-lanes = <7>;
-				data-lanes = <0>;
-				remote-endpoint = <&gc2355_ep>;
-			};*/
-		};
-	};
-};
-
 &cci {
 	status = "okay";
 };
 
 &cci_i2c0 {
-	camera_imx219: camera-sensor@10 {
-		compatible = "sony,imx219";
-		reg = <0x10>;
-
-		clocks = <&gcc GCC_CAMSS_MCLK0_CLK>;
-		clock-names = "xclk";
-
-		reset-gpios = <&tlmm 35 GPIO_ACTIVE_LOW>;
-
-		VANA-supply = <&cam_vana_reg>;
-		VDIG-supply = <&cam_vdig_reg>;
-		VDDL-supply = <&cam_vio_reg>;
-
-		pinctrl-0 = <&camera_rear_default>;
-		pinctrl-names = "default";
-
-		orientation = <1>;
-		rotation = <90>;
-
-		port {
-			imx219_ep: endpoint {
-				remote-endpoint = <&csiphy0_imx219_ep>;
-				data-lanes = <0 1 2 3>;
-				link-frequencies = /bits/ 64 <364000000>;
-			};
-		};
-	};
-
-	camera_ov8858: camera-sensor@18 {
-		compatible = "ovti,ov8858";
-		reg = <0x18>;
-
-		clocks = <&gcc GCC_CAMSS_MCLK0_CLK>;
-		clock-names = "xvclk";
-		assigned-clocks = <&gcc GCC_CAMSS_MCLK0_CLK>;
-		assigned-clock-rates = <24000000>;
-
-		reset-gpios = <&tlmm 35 GPIO_ACTIVE_LOW>;
-		powerdown-gpios  = <&tlmm 34 GPIO_ACTIVE_HIGH>;
-
-		dovdd-supply = <&cam_vio_reg>;
-		avdd-supply = <&cam_vana_reg>;
-		dvdd-supply = <&cam_vdig_reg>;
-
-		//pinctrl-0 = <&camera_rear_default>;
-		//pinctrl-names = "default";
-
-		orientation = <1>;
-		rotation = <90>;
-
-		port {
-			ov8858_ep: endpoint {
-				remote-endpoint = <&csiphy0_ov8858_ep>;
-				data-lanes = <0 1 2 3>;
-				link-frequencies = /bits/ 64 <360000000>;
-			};
-		};
-	};
-
-	front_cam_ov2680: camera-sensor@36 {
-		compatible = "ovti,ov2680";
-		reg = <0x36>;
-		clocks = <&gcc GCC_CAMSS_MCLK1_CLK>;
-		clock-names = "xvclk";
-
-		reset-gpios = <&tlmm 28 GPIO_ACTIVE_LOW>;
-		powerdown-gpios = <&tlmm 33 GPIO_ACTIVE_HIGH>;
-
-		DOVDD-supply = <&cam_vio_reg>;
-		AVDD-supply = <&cam_vana_reg>;
-		DVDD-supply = <&cam_vio_reg>;
-
-		pinctrl-0 = <&camera_front_default>;
-		pinctrl-names = "default";
-
-		port {
-			ov2680_ep: endpoint {
-				remote-endpoint = <&csiphy1_ov2680_ep>;
-				data-lanes = <0>;
-				link-frequencies = /bits/ 64 <331200000>;
-			};
-		};
-	};
-
-	// HINT: Erfordert den manuell importierten gc2355.c Treiber
-	/*
-	front_cam_gc2355: camera-sensor@3c {
-		compatible = "galaxycore,gc2355";
-		reg = <0x3c>;
-
-		clocks = <&gcc GCC_CAMSS_MCLK1_CLK>;
-		clock-names = "xclk";
-
-		reset-gpios = <&tlmm 28 GPIO_ACTIVE_LOW>;
-		powerdown-gpios = <&tlmm 33 GPIO_ACTIVE_HIGH>;
-
-		VANA-supply = <&cam_vana_reg>;
-		VDIO-supply = <&cam_vio_reg>;
-
-		pinctrl-0 = <&camera_front_default>;
-		pinctrl-names = "default";
-
-		port {
-			gc2355_ep: endpoint {
-				remote-endpoint = <&csiphy1_gc2355_ep>;
-				data-lanes = <0>;
-				link-frequencies = /bits/ 64 <240000000>;
-			};
-		};
-	};*/
 };
 
 &blsp_uart2 {
