@@ -5,7 +5,7 @@
 
 / {
 	model = "Huawei MediaPad T2 10.0 Pro (CMI Revision)";
-	compatible = "huawei,federer", "qcom,msm8939";
+	compatible = "huawei,federer-cmi", "qcom,msm8939";
 	chassis-type = "tablet";
 };
 

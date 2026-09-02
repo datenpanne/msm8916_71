@@ -307,7 +307,7 @@ static int pele_jdi_r69429_probe(struct mipi_dsi_device *dsi)
 	drm_panel_init(&ctx->panel, dev, &pele_jdi_r69429_panel_funcs,
 		       DRM_MODE_CONNECTOR_DSI);
 
-	//ctx->panel.prepare_prev_first = true;
+	ctx->panel.prepare_prev_first = true;
 
 	ctx->panel.backlight = pele_jdi_r69429_create_backlight(dsi);
 	if (IS_ERR(ctx->panel.backlight))

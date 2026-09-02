@@ -5,7 +5,7 @@
 
 / {
 	model = "Huawei MediaPad T2 10.0 Pro (BOE Revision)";
-	compatible = "huawei,federer", "qcom,msm8939";
+	compatible = "huawei,federer-boe", "qcom,msm8939";
 	chassis-type = "tablet";
 };
 
