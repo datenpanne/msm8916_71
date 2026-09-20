@@ -658,7 +658,7 @@
 	bq24296_ce_hog: bq24296-ce-hog-state {
 		gpio-hog;
 		gpios = <108 GPIO_ACTIVE_HIGH>;
-		output-high;
+		output-low;
 		line-name = "bq24296-charge-enable";
 	};
 	
